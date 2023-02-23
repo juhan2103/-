@@ -11,12 +11,24 @@ import com.bumptech.glide.Glide
 import com.pronunu.mysololife.R
 
 class ContentRVAdapter(val context : Context, val items : ArrayList<ContentModel>) : RecyclerView.Adapter<ContentRVAdapter.Viewholder>(){
+
+    interface ItemClick{
+        fun onClick(view : View, position: Int)
+    }
+    var itemClick : ItemClick? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentRVAdapter.Viewholder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.content_rv_item, parent, false)
         return Viewholder(v)
     }
 
     override fun onBindViewHolder(holder: ContentRVAdapter.Viewholder, position: Int) {
+
+        if(itemClick != null){
+            holder.itemView.setOnClickListener { v->
+                itemClick?.onClick(v, position)
+            }
+        }
         holder.bindItems(items[position])
     }
 
@@ -36,8 +48,6 @@ class ContentRVAdapter(val context : Context, val items : ArrayList<ContentModel
             Glide.with(context)
                 .load(item.imageUrl)
                 .into(imageViewArea)
-
-
 
         }
     }
