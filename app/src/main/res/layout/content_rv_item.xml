@@ -24,6 +24,8 @@
     <ImageView
         android:id="@+id/bookmarkArea"
         android:src="@drawable/bookmark_white"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
         android:layout_width="30dp"
         android:layout_height="30dp"/>
 
