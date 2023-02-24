@@ -15,7 +15,10 @@ import com.pronunu.mysololife.R
 import com.pronunu.mysololife.utils.FBAuth
 import com.pronunu.mysololife.utils.FBRef
 
-class ContentRVAdapter(val context : Context, val items : ArrayList<ContentModel>, val keyList : ArrayList<String>)
+class ContentRVAdapter(val context : Context,
+                       val items : ArrayList<ContentModel>,
+                       val keyList : ArrayList<String>,
+                       val bookmarkIdList : MutableList<String>)
     : RecyclerView.Adapter<ContentRVAdapter.Viewholder>(){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContentRVAdapter.Viewholder {
@@ -47,11 +50,32 @@ class ContentRVAdapter(val context : Context, val items : ArrayList<ContentModel
             val imageViewArea = itemView.findViewById<ImageView>(R.id.imageArea)
             val bookmarkArea = itemView.findViewById<ImageView>(R.id.bookmarkArea)
 
+            if(bookmarkIdList.contains(key)){
+                bookmarkArea.setImageResource(R.drawable.bookmark_color)
+            } else{
+                bookmarkArea.setImageResource(R.drawable.bookmark_white)
+            }
+
             bookmarkArea.setOnClickListener {
                 Log.d("ContentRVAdapter", FBAuth.getUid())
                 Toast.makeText(context, key, Toast.LENGTH_LONG).show()
 
-                FBRef.bookmarkRef.child(FBAuth.getUid()).child(key).setValue("Good")
+
+                if(bookmarkIdList.contains(key)){
+                    // 북마크가 있을 때 삭제
+                    FBRef.bookmarkRef
+                        .child(FBAuth.getUid())
+                        .child(key)
+                        .removeValue()
+
+                }else{
+                    // 북마크가 없을 때
+                    FBRef.bookmarkRef
+                        .child(FBAuth.getUid())
+                        .child(key)
+                        .setValue(BookmarkModel(true))
+                }
+
             }
 
             contentTitle.text = item.title
