@@ -1,14 +1,21 @@
 package com.pronunu.mysololife.board
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.pronunu.mysololife.R
 import com.pronunu.mysololife.databinding.ActivityBoardWriteBinding
 import com.pronunu.mysololife.utils.FBAuth
 import com.pronunu.mysololife.utils.FBRef
+import java.io.ByteArrayOutputStream
 
 class BoardWriteActivity : AppCompatActivity() {
 
@@ -35,15 +42,57 @@ class BoardWriteActivity : AppCompatActivity() {
             //  - key
             //   - boardModel(title, content, uid, time)
 
+            val key = FBRef.boardRef.push().key.toString()
+
             FBRef.boardRef
-                .push()
+                .child(key)
                 .setValue(BoardModel(title, content, uid, time))
 
             Toast.makeText(this, "게시글 입력 완료", Toast.LENGTH_LONG).show()
+
+            imageUpload()
 
             finish()
 
         }
 
+        binding.imageArea.setOnClickListener {
+            val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+            startActivityForResult(gallery, 100)
+        }
+
+    }
+
+    private fun imageUpload(key : String){
+
+        // Get the data from an ImageView as bytes
+
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val mountainsRef = storageRef.child(key + ".jpeg")
+
+        val imageView = binding.imageArea
+
+        imageView.isDrawingCacheEnabled = true
+        imageView.buildDrawingCache()
+        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+
+        var uploadTask = mountainsRef.putBytes(data)
+        uploadTask.addOnFailureListener {
+            // Handle unsuccessful uploads
+        }.addOnSuccessListener { taskSnapshot ->
+            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
+            // ...
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == 100){
+            binding.imageArea.setImageURI(data?.data)
+        }
     }
 }
