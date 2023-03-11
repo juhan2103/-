@@ -55,7 +55,7 @@ class BoardWriteActivity : AppCompatActivity() {
             if(isImageUpload == true){
                 imageUpload(key)
             }
-            
+
             finish()
 
         }
