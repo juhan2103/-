@@ -4,19 +4,29 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.pronunu.mysololife.auth.IntroActivity
+import com.pronunu.mysololife.setting.SettingActivity
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var auth : FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        auth = Firebase.auth
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        auth = Firebase.auth
+        findViewById<ImageView>(R.id.settingBtn).setOnClickListener {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivity(intent)
+        }
+
+
 
 //        findViewById<Button>(R.id.logoutBtn).setOnClickListener {
 //
