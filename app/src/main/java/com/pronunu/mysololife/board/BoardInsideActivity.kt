@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
@@ -17,7 +18,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.pronunu.mysololife.R
+import com.pronunu.mysololife.comment.commentModel
 import com.pronunu.mysololife.databinding.ActivityBoardInsideBinding
+import com.pronunu.mysololife.utils.FBAuth
 import com.pronunu.mysololife.utils.FBRef
 
 class BoardInsideActivity : AppCompatActivity() {
@@ -44,7 +47,28 @@ class BoardInsideActivity : AppCompatActivity() {
         getBoardData(key)
         getImageData(key)
 
+        binding.commentBtn.setOnClickListener {
+            insertComment(key)
+        }
+
     }
+
+    fun insertComment(key : String){
+        // comment
+        //  - BoardKey
+        //   - commentKey
+        //    - CommentData
+
+        FBRef.commentRef
+            .child(key)
+            .push()
+            .setValue(commentModel(binding.commentArea.text.toString()))
+
+        Toast.makeText(this, "댓글 입력 완료", Toast.LENGTH_LONG).show()
+        binding.commentArea.setText("")
+        
+    }
+
     private fun showDialog(){
 
         val mDialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog, null)
@@ -80,12 +104,15 @@ class BoardInsideActivity : AppCompatActivity() {
 
         storageReference.downloadUrl.addOnCompleteListener( {task ->
             if(task.isSuccessful){
+
                 Glide.with(this)
                     .load(task.result)
                     .into(imageViewFromFB)
+
             }
             else{
 
+                binding.getImageArea.isVisible = false
             }
         })
     }
@@ -100,6 +127,16 @@ class BoardInsideActivity : AppCompatActivity() {
                     binding.titleArea.text = dataModel!!.title
                     binding.textArea.text = dataModel!!.content
                     binding.timeArea.text = dataModel!!.time
+
+                    val myUid = FBAuth.getUid()
+                    val writerUid = dataModel.uid
+
+                    if(myUid.equals(writerUid)){
+                        binding.boardSettingIcon.isVisible = true
+                    }
+                    else{
+
+                    }
 
                 }
                 catch (e : Exception){
